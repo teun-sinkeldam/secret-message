@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Message;
-use App\Repository\MessageRepository;
-use App\Service\Secret\SecretGeneratorInterface;
-use App\Service\Uuid\UuidGeneratorInterface;
+use App\Service\SecretGenerator;
+use App\Service\UuidGenerator;
 use DateTimeImmutable;
 
 class MessageService
 {
     public function __construct(
-        private readonly MessageRepository $messageRepository,
-        private readonly UuidGeneratorInterface $uuidGenerator,
-        private readonly SecretGeneratorInterface $secretGenerator,
+        private readonly UuidGenerator $uuidGenerator,
+        private readonly SecretGenerator $secretGenerator,
     ) {
     }
 

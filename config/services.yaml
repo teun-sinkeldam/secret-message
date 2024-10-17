@@ -26,8 +26,3 @@ services:
     App\Controller\:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
-
-    App\Service\MessageService:
-        arguments:
-            $uuidGenerator: '@App\Service\Uuid\UuidGenerator'
-            $secretGenerator: '@App\Service\Secret\SecretGenerator'

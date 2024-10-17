@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Secret;
+namespace App\Service;
 
-class SecretGenerator implements SecretGeneratorInterface
+class SecretGenerator
 {
     public function generate(): string
     {

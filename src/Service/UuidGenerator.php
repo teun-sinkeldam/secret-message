@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Uuid;
+namespace App\Service;
 
 use Symfony\Component\Uid\Uuid;
-class UuidGenerator implements UuidGeneratorInterface
+class UuidGenerator
 {
     
     public function generate(): string
