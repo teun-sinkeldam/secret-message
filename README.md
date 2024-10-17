@@ -4,8 +4,9 @@
 2. Run `docker compose build --no-cache` to build fresh images
 3. Run `docker compose up -d` to start the containers
 4. Run `docker compose exec php composer install` to install the composer dependencies
-5. See below instructions to use the project
-6. When finished, run `docker compose down --remove-orphans` to stop the Docker containers.
+5. Run `docker compose exec php bin/console d:m:m` to set up the database tables
+6. See below instructions to use the project
+7. When finished, run `docker compose down --remove-orphans` to stop the Docker containers.
 
 Credits for docker setup: [symfony-docker](https://github.com/dunglas/symfony-docker)
 
