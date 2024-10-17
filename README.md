@@ -1,51 +1,69 @@
-# Symfony Docker
-
-A [Docker](https://www.docker.com/)-based installer and runtime for the [Symfony](https://symfony.com) web framework,
-with [FrankenPHP](https://frankenphp.dev) and [Caddy](https://caddyserver.com/) inside!
-
-![CI](https://github.com/dunglas/symfony-docker/workflows/CI/badge.svg)
-
 ## Getting Started
 
 1. If not already done, [install Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
 2. Run `docker compose build --no-cache` to build fresh images
-3. Run `docker compose up --pull always -d --wait` to set up and start a fresh Symfony project
-4. Open `https://localhost` in your favorite web browser and [accept the auto-generated TLS certificate](https://stackoverflow.com/a/15076602/1352334)
-5. Run `docker compose down --remove-orphans` to stop the Docker containers.
+3. Run `docker compose up -d` to start the containers
+4. Run `docker compose exec php composer install` to install the composer dependencies
+5. See below instructions to use the project
+6. When finished, run `docker compose down --remove-orphans` to stop the Docker containers.
 
-## Features
+Credits for docker setup: [symfony-docker](https://github.com/dunglas/symfony-docker)
 
-* Production, development and CI ready
-* Just 1 service by default
-* Blazing-fast performance thanks to [the worker mode of FrankenPHP](https://github.com/dunglas/frankenphp/blob/main/docs/worker.md) (automatically enabled in prod mode)
-* [Installation of extra Docker Compose services](docs/extra-services.md) with Symfony Flex
-* Automatic HTTPS (in dev and prod)
-* HTTP/3 and [Early Hints](https://symfony.com/blog/new-in-symfony-6-3-early-hints) support
-* Real-time messaging thanks to a built-in [Mercure hub](https://symfony.com/doc/current/mercure.html)
-* [Vulcain](https://vulcain.rocks) support
-* Native [XDebug](docs/xdebug.md) integration
-* Super-readable configuration
+## Instructions
 
-**Enjoy!**
+1. Send a request to end point `https://localhost/message/create` with a json body including the message content and recipient. 
+Example: 
+```
+curl --location 'https://localhost/message/create' \
+--header 'Content-Type: application/json' \
+--data '{
+    "content": "HEY HALLO DIT IS GEHEIM EN WIL IK VERSTUREN NAAR IEMAND ANDERS",
+    "recipient": "henk"
+}'
+```
 
-## Docs
+As a response you will receive something like this:
+```
+{
+    "url": "/message/view/37344242-8c9c-11ef-b7ed-4b19947c085b",
+    "secret": "860024"
+}
+```
 
-1. [Options available](docs/options.md)
-2. [Using Symfony Docker with an existing project](docs/existing-project.md)
-3. [Support for extra services](docs/extra-services.md)
-4. [Deploying in production](docs/production.md)
-5. [Debugging with Xdebug](docs/xdebug.md)
-6. [TLS Certificates](docs/tls.md)
-7. [Using MySQL instead of PostgreSQL](docs/mysql.md)
-8. [Using Alpine Linux instead of Debian](docs/alpine.md)
-9. [Using a Makefile](docs/makefile.md)
-10. [Updating the template](docs/updating.md)
-11. [Troubleshooting](docs/troubleshooting.md)
+2. Use the response to create url: `https://localhost/message/view/37344242-8c9c-11ef-b7ed-4b19947c085b` and send this to the recipient.
+3. Send the secret from the response also to the recipient, use a different communication channel for this in case the recipient is compromised on one of them
+4. The recipient needs to send a request to the given endpoint `https://localhost/message/view/37344242-8c9c-11ef-b7ed-4b19947c085b` and add a json body including the secret.
+Example:
+```
+curl --location 'https://localhost/message/view/37344242-8c9c-11ef-b7ed-4b19947c085b' \
+--header 'Content-Type: application/json' \
+--data '{
+    "secret":"860024"
+}'
+```
 
-## License
+5. The response that the recipient will receive will be one of the following
+Success:
+```
+{
+    "content": "HEY HALLO DIT IS GEHEIM EN WIL IK VERSTUREN NAAR IEMAND ANDERS",
+    "recipient": "henk"
+}
+```
+Wrong secret given:
+```
+{
+    "content": "Wrong secret passed, message deleted. sorry :("
+}
+```
+Message not found:
+```
+A generic 404 response
+```
 
-Symfony Docker is available under the MIT License.
+6. After a request is done to retrieve a message (success or fail) the message is deleted.
+7. A command is present to remove messages from 'yesterday'. This can be set up to run with for example a cronjob.
 
-## Credits
+## Testing
 
-Created by [Kévin Dunglas](https://dunglas.dev), co-maintained by [Maxime Helias](https://twitter.com/maxhelias) and sponsored by [Les-Tilleuls.coop](https://les-tilleuls.coop).
+1. Using the command `docker compose exec php bin/phpunit` will run the unit tests (currently one test)
